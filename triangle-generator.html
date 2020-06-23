@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/bootstrap.css">
+    <link rel="stylesheet" href="assets/self-style.css">
+
+    <title>Document</title>
+
+  </head>
+  <body onload="document.getElementById('point1').focus()">
+    <div class="container">
+        <hr>
+        <h4>Questão 05</h4>
+        <p>
+            Crie um componente que possua 3 caixas de texto que só aceitam números e tenha os rótulos (label) lado A, lado B e lado C. O componente deve ainda possuir um botão calcular que quando acionado deve dizer se um triângulo formado por esses 3 lados é um triângulo equilátero, isósceles ou escaleno.</p>
+        <hr>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+
+                    <div class="col">
+                        <label>Lado A (limit: 9)</label><br>
+                        <input type="text" id="easy1" maxlength="1" onkeyup="analyze2()">
+                    </div>
+
+                    <div class="col">
+                        <label>Lado B (limit: 9)</label><br>
+                        <input type="text" id="easy2" maxlength="1" onkeyup="analyze2()">
+                    </div>
+
+                    <div class="col">
+                        <label>Lado B (limit: 9)</label><br>
+                        <input type="text" id="easy3" maxlength="1" onkeyup="analyze2()">
+                    </div>
+                </div>
+                <hr>
+                <button class="btn btn-dark btn-block" onclick="easyGenerate()">Calcular</button>
+
+            </div>
+
+            <div class="card-body">
+              <p>Definição: <span class="result" id="resultEasy"></span></p>
+            </div>
+        </div>
+        <hr>
+
+
+        <hr>
+        <h3>Modo Hardcore</h3>
+        <hr>
+        <div class="card">
+            <div class="card-header">
+                <p>X positivo e Y negativo</p>
+                <p>Medidas dos lados calculados serão arredondadas e o valor original será mostrado junto</p>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <label>Coordenadas xy do 1º ponto (limit: 99)</label><br>
+                        <input type="text" id="point1" maxlength="2" onkeyup="analyze()">
+                    </div>
+
+                    <div class="col">
+                        <label>Coordenadas xy do 2º ponto (limit: 99)</label><br>
+                        <input type="text" id="point2" maxlength="2" onkeyup="analyze()">
+                    </div>
+
+                    <div class="col">
+                        <label>Coordenadas xy do 3º ponto (limit: 99)</label><br>
+                        <input type="text" id="point3" maxlength="2" onkeyup="analyze()">
+                    </div>
+                </div>
+                <hr>
+                <button class="btn btn-dark btn-block" onclick="generate()">Gerar triangulo</button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-4">
+                        <span style="position: absolute;left: 2px;top: 0px">0</span>
+                        <span style="position: absolute;left: 22px;top: -23px">0</span>
+                        <span style="position: absolute;left: 2px;top: 40px">y</span>
+                        <span style="position: absolute;left: 2px;top: 85px">9</span>
+                        <span style="position: absolute;left: 65px;top: -24px">x</span>
+                        <span style="position: absolute;left: 110px;top: -23px">9</span>
+
+                        <div style="border: 1px solid black;padding: 10px;width: 111px">
+                             <canvas id="draw" width="90" height="90"></canvas>     
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <span>P1: </span><span class="result" id="p1"></span><br>
+                        <span>P2: </span><span class="result" id="p2"></span><br>
+                        <span>P3: </span><span class="result" id="p3"></span><br>
+                    </div>
+                    <div class="col-4">
+                        <span>Lado a: </span><span class="result" id="ladoA"></span><br>
+                        <span>Lado b: </span><span class="result" id="ladoB"></span><br>
+                        <span>Lado c: </span><span class="result" id="ladoC"></span><br>
+                        <p>Definição: <span id="result"></span></p>
+                    </div>
+                </div>                
+            </div>
+        </div>
+        <hr>
+      
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="assets/jquery.js"></script>
+    <script src="assets/popper.js"></script>
+    <script src="assets/bootstrap.js"></script>
+    <script type="text/javascript">
+
+// easy mode
+        var easy1, easy2, easy3, resultEasy;
+
+        // função pra usar em qualquer erro
+        function newErrorEasy(msg){
+            document.getElementById("easy1").value = "";
+            document.getElementById("easy2").value = "";
+            document.getElementById("easy3").value = "";
+            document.getElementById("easy1").focus();
+            alert(msg);
+            throw new Error("err");
+        }
+
+        // tratar em tempo real
+        function analyze2(){
+            easy1 = document.getElementById("easy1").value;
+            easy2 = document.getElementById("easy2").value;
+            easy3 = document.getElementById("easy3").value;
+            
+            // tratando o básico
+            if (isNaN(easy1) || easy1.indexOf(".") > -1 || isNaN(easy2) || easy2.indexOf(".") > -1 || isNaN(easy3) || easy3.indexOf(".") > -1) {
+                newErrorEasy("Digite um número válido")
+            }
+            easy1 = parseInt(easy1);
+            easy2 = parseInt(easy2);
+            easy3 = parseInt(easy3);
+        }
+
+        // calcular se os lados são iguais........................
+        function easyGenerate(){
+            var resultEasy = document.getElementById("resultEasy");
+            resultEasy.innerHTML = "";
+
+            if (isNaN(easy1) || isNaN(easy2) || isNaN(easy3)) 
+                newErrorEasy("Preencha todos os campos");
+
+            // tratando mais básico
+            if (easy1 > 99 || easy2 > 99 || easy3 > 99 || easy1 < 0 || easy2 < 0 || easy3 < 0)
+                return newErrorEasy("Digite um valor entre 0 e 99");
+            
+            // retornando a resposta
+            if (easy1 == easy2 && easy1 == easy3)
+                return resultEasy.innerHTML = "Equilátero";
+            
+            if ((easy1 == easy2 && easy1 != easy3) || 
+                (easy2 == easy3 && easy1 != easy2) || 
+                (easy1 == easy3 && easy2 != easy3)) {
+                return resultEasy.innerHTML = "Isósceles";
+            }
+
+            if(easy1 != easy2 && easy1 != easy3)
+                return resultEasy.innerHTML = "Escaleno";
+
+        }
+// -------------------------------------
+
+// HARD CORE MODE
+        var point1, point2, point3, x1, y1, x2, y2, x3, y3;
+
+        // função pra usar em qualquer erro
+        function newError(msg){
+            document.getElementById("point1").value = "";
+            document.getElementById("point2").value = "";
+            document.getElementById("point3").value = "";
+            document.getElementById("point1").focus();
+            alert(msg);
+            throw new Error("err");
+        }
+
+        // tratar em tempo real
+        function analyze(){
+            point1 = document.getElementById("point1").value;
+            point2 = document.getElementById("point2").value;
+            point3 = document.getElementById("point3").value;
+            
+            // tratando o básico
+            if (isNaN(point1) || point1.indexOf(".") > -1 || isNaN(point2) || point2.indexOf(".") > -1 || isNaN(point3) || point3.indexOf(".") > -1) {
+                newError("Digite um número válido")
+            }
+            point1 = parseInt(point1);
+            point2 = parseInt(point2);
+            point3 = parseInt(point3);
+        }
+
+        // gerar triangulo hardcore
+        function generate(){
+
+            // tratando mais básico
+            if (point1 > 99 || point2 > 99 || point3 > 99 || point1 < 0 || point2 < 0 || point3 < 0) {
+                newError("Digite um valor entre 0 e 99");
+            }
+            if (point1 == point2 || point1 == point3 || point2 == point3) {
+                newError("Digite valores com cooredenadas diferentes");
+            }
+
+            // mexendo no canvas 
+            var canvas = document.getElementById("draw");
+            var ctx = canvas.getContext("2d");
+
+            ctx.beginPath();
+            ctx.rect(0, 0, 99, 99);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            
+
+            if (isNaN(point1) || isNaN(point2) || isNaN(point3)) {
+                newError("Informe todos os campos");
+            }
+
+            // definindo as vars
+            point1 = document.getElementById("point1").value;
+            point2 = document.getElementById("point2").value;
+            point3 = document.getElementById("point3").value;
+
+            x1 = parseInt(point1.substr(0,1) * 10);
+            y1 = parseInt(point1.substr(1,1) * 10);
+            x2 = parseInt(point2.substr(0,1) * 10);
+            y2 = parseInt(point2.substr(1,1) * 10);
+            x3 = parseInt(point3.substr(0,1) * 10);
+            y3 = parseInt(point3.substr(1,1) * 10);
+
+            // escrevendo no site algumas respostas
+            document.getElementById("p1").innerHTML = `(${x1/10}, ${y1/10})`;
+            document.getElementById("p2").innerHTML = `(${x2/10}, ${y2/10})`;
+            document.getElementById("p3").innerHTML = `(${x3/10}, ${y3/10})`;
+
+            // definindo o tamanho dos lados baseado nas cordenadas e usando teorema de pitagoras em todos os lados
+            // aqui vale ressaltar que usei cada lado calculado como se fosse a hipotenusa, e os catetos era só ver a diferença das cordenadas que estavam
+            ladoA = ((Math.sqrt( Math.pow(Math.abs(x1-x2), 2) + Math.pow(Math.abs(y1-y2), 2) ))/10).toFixed(3);
+            ladoB = ((Math.sqrt( Math.pow(Math.abs(x2-x3), 2) + Math.pow(Math.abs(y2-y3), 2) ))/10).toFixed(3);
+            ladoC = ((Math.sqrt( Math.pow(Math.abs(x3-x1), 2) + Math.pow(Math.abs(y3-y1), 2) ))/10).toFixed(3);
+
+            // arredondando para dar a resposta
+            ladoAR = Math.round(ladoA);
+            ladoBR = Math.round(ladoB);
+            ladoCR = Math.round(ladoC);
+
+            // escrevendo no site
+            document.getElementById("ladoA").innerHTML = ladoAR + " ("+ladoA+")";
+            document.getElementById("ladoB").innerHTML = ladoBR + " ("+ladoB+")";
+            document.getElementById("ladoC").innerHTML = ladoCR + " ("+ladoC+")";
+
+            // desenhando o trinagulo com o canvas
+            ctx.beginPath();
+            ctx.moveTo(x1,y1);
+            ctx.lineTo(x2,y2);
+            ctx.lineTo(x3,y3);
+            ctx.fillStyle = "purple";
+            ctx.fill();
+
+            // retornando a resposta final
+            if (ladoAR == ladoBR && ladoAR == ladoCR)
+                return result.innerHTML = "Equilátero";
+            
+            if ((ladoAR == ladoBR && ladoAR != ladoCR) || 
+                (ladoBR == ladoCR && ladoAR != ladoBR) || 
+                (ladoAR == ladoCR && ladoBR != ladoCR)) {
+                return result.innerHTML = "Isósceles";
+            }
+
+            if(ladoAR != ladoBR && ladoAR != ladoCR)
+                return result.innerHTML = "Escaleno";
+
+        }
+
+    </script>
+  </body>
+</html>
